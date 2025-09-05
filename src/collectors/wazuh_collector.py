@@ -69,7 +69,7 @@ class WazuhCollector:
         start_time = end_time - timedelta(minutes=minutes)
         
         # API endpoint for alerts
-        alerts_url = f"{self.base_url}/alerts"
+        alerts_url = f"{self.base_url}/alerts/summary"
         
         headers = {
             'Authorization': f'Bearer {self.token}',
