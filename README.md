@@ -37,3 +37,18 @@ Threat Intel Enrichment
 ```bash
 git clone https://github.com/cyberarber/security-alert-pipeline.git
 cd security-alert-pipeline
+
+
+## Quick Demo
+
+Run the demo to see the AI analysis in action:
+
+```bash
+python3 demo.py
+```
+
+This demonstrates real-time analysis of critical security events including:
+- Brute force attacks
+- Data exfiltration attempts  
+- Malicious PowerShell execution
+
