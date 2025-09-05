@@ -1,0 +1,58 @@
+{
+  "alerts": [
+    {
+      "id": "wazuh-001",
+      "timestamp": "2024-01-15T10:30:00Z",
+      "rule": {
+        "level": 12,
+        "description": "Possible attack on the ssh server (brute force).",
+        "id": "5712",
+        "groups": ["syslog", "ssh", "authentication_failures"]
+      },
+      "agent": {
+        "id": "002",
+        "name": "ubuntu-server"
+      },
+      "data": {
+        "srcip": "203.0.113.42",
+        "dstuser": "root"
+      }
+    },
+    {
+      "id": "wazuh-002",
+      "timestamp": "2024-01-15T10:31:00Z",
+      "rule": {
+        "level": 10,
+        "description": "Windows Defender detected malware",
+        "id": "61133",
+        "groups": ["windows", "windows_defender"]
+      },
+      "agent": {
+        "id": "003",
+        "name": "win11-workstation"
+      },
+      "data": {
+        "win.eventdata.threatName": "Trojan:Win32/Emotet",
+        "win.eventdata.path": "C:\\Users\\Admin\\Downloads\\invoice.exe"
+      }
+    },
+    {
+      "id": "wazuh-003",
+      "timestamp": "2024-01-15T10:32:00Z",
+      "rule": {
+        "level": 14,
+        "description": "Shellshock attack detected",
+        "id": "31166",
+        "groups": ["web", "apache", "attack"]
+      },
+      "agent": {
+        "id": "001",
+        "name": "web-server"
+      },
+      "data": {
+        "srcip": "198.51.100.178",
+        "url": "/cgi-bin/test.cgi"
+      }
+    }
+  ]
+}
