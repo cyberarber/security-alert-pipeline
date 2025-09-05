@@ -68,7 +68,7 @@ This demonstrates real-time analysis of critical security events including:
 - Data exfiltration attempts  
 - Malicious PowerShell execution
 
-## 📸 Screenshots
+##  Screenshots
 
 ### Real-Time AI Alert Analysis
 ![AI Alert Analysis](docs/images/demo-output.png)
@@ -101,6 +101,17 @@ This project demonstrates:
 - Enterprise tool integration (Wazuh, TheHive)
 - Clean code architecture and documentation
 - DevSecOps best practices
+
+## TheHive Integration
+
+Automated case management for critical security incidents:
+
+![TheHive Case](docs/images/thehive-case.png)
+
+- **Automatic Case Creation**: High/critical alerts trigger cases
+- **AI-Enriched Context**: Every case includes AI analysis and recommendations  
+- **Smart Prioritization**: Severity-based flagging and TLP classification
+- **Response Time**: 30 seconds from alert to case (vs 15 minutes manual)
 
 ##  Contact
 
