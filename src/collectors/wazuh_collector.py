@@ -51,25 +51,16 @@ class WazuhCollector:
             print(f"✗ Connection error: {str(e)}")
             return False
     
-    def get_recent_alerts(self, minutes=60, min_level=5):
+    def get_manager_logs(self, limit=100):
         """
-        Fetch recent alerts from Wazuh
-        
-        Args:
-            minutes: How far back to look (default 60)
-            min_level: Minimum alert level (default 5)
+        Fetch recent manager logs from Wazuh
+        This works with Wazuh 4.7 API
         """
-        # Ensure we have valid token
         if not self.token or datetime.now() >= self.token_expire:
             if not self.authenticate():
                 return []
         
-        # Calculate time range
-        end_time = datetime.now()
-        start_time = end_time - timedelta(minutes=minutes)
-        
-        # API endpoint for alerts
-        alerts_url = f"{self.base_url}/alerts/summary"
+        logs_url = f"{self.base_url}/manager/logs"
         
         headers = {
             'Authorization': f'Bearer {self.token}',
@@ -78,14 +69,13 @@ class WazuhCollector:
         
         params = {
             'pretty': 'true',
-            'level': f'>{min_level}',
-            'limit': 100,
+            'limit': limit,
             'sort': '-timestamp'
         }
         
         try:
             response = requests.get(
-                alerts_url,
+                logs_url,
                 headers=headers,
                 params=params,
                 verify=False
@@ -93,30 +83,49 @@ class WazuhCollector:
             
             if response.status_code == 200:
                 data = response.json()
-                alerts = data.get('data', {}).get('affected_items', [])
-                print(f"✓ Retrieved {len(alerts)} alerts from Wazuh")
-                return alerts
+                logs = data.get('data', {}).get('affected_items', [])
+                print(f"✓ Retrieved {len(logs)} log entries from Wazuh")
+                return logs
             else:
-                print(f"✗ Failed to get alerts: {response.status_code}")
+                print(f"✗ Failed to get logs: {response.status_code}")
                 return []
                 
         except Exception as e:
-            print(f"✗ Error fetching alerts: {str(e)}")
+            print(f"✗ Error fetching logs: {str(e)}")
             return []
     
-    def format_alert(self, wazuh_alert):
-        """Convert Wazuh alert format to our standard format"""
-        return {
-            'id': wazuh_alert.get('id', 'unknown'),
-            'timestamp': wazuh_alert.get('timestamp', datetime.now().isoformat()),
-            'alert_type': wazuh_alert.get('rule', {}).get('description', 'Unknown'),
-            'source_ip': wazuh_alert.get('data', {}).get('srcip', 'N/A'),
-            'dest_ip': wazuh_alert.get('data', {}).get('dstip', 'N/A'),
-            'description': wazuh_alert.get('rule', {}).get('description', ''),
-            'level': wazuh_alert.get('rule', {}).get('level', 0),
-            'agent': wazuh_alert.get('agent', {}).get('name', 'unknown'),
-            'raw_log': wazuh_alert.get('full_log', '')[:500]
+    def get_agents_status(self):
+        """Get status of all registered agents"""
+        if not self.token or datetime.now() >= self.token_expire:
+            if not self.authenticate():
+                return []
+        
+        agents_url = f"{self.base_url}/agents"
+        
+        headers = {
+            'Authorization': f'Bearer {self.token}',
+            'Content-Type': 'application/json'
         }
+        
+        try:
+            response = requests.get(
+                agents_url,
+                headers=headers,
+                verify=False
+            )
+            
+            if response.status_code == 200:
+                data = response.json()
+                agents = data.get('data', {}).get('affected_items', [])
+                print(f"✓ Found {len(agents)} registered agents")
+                return agents
+            else:
+                print(f"✗ Failed to get agents: {response.status_code}")
+                return []
+                
+        except Exception as e:
+            print(f"✗ Error fetching agents: {str(e)}")
+            return []
 
 
 def main():
@@ -126,18 +135,23 @@ def main():
     
     collector = WazuhCollector()
     
+    print("=" * 60)
+    print("WAZUH COLLECTOR TEST")
+    print("=" * 60)
+    
     # Test authentication
     if collector.authenticate():
-        # Get recent alerts
-        alerts = collector.get_recent_alerts(minutes=60, min_level=3)
+        print("\n[1] Testing Manager Logs Retrieval:")
+        logs = collector.get_manager_logs(limit=5)
+        if logs:
+            print(f"   Sample log entry: {logs[0].get('description', 'N/A')[:80]}...")
         
-        # Format and display
-        for alert in alerts[:5]:  # Show first 5
-            formatted = collector.format_alert(alert)
-            print(f"\nAlert: {formatted['id']}")
-            print(f"  Type: {formatted['alert_type']}")
-            print(f"  Level: {formatted['level']}")
-            print(f"  Agent: {formatted['agent']}")
+        print("\n[2] Testing Agent Status:")
+        agents = collector.get_agents_status()
+        for agent in agents[:3]:  # Show first 3 agents
+            print(f"   Agent: {agent.get('name', 'unknown')} - Status: {agent.get('status', 'unknown')}")
+    
+    print("\n" + "=" * 60)
 
 
 if __name__ == "__main__":
